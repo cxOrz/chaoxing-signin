@@ -1,3 +1,4 @@
+//这个文件就是最根本的文件 调用登陆函数，各个签到文件中的签到函数，还有可以从本地用户调用
 import prompts from 'prompts';
 import { blue, red } from 'kolorist';
 import { getPPTActiveInfo, preSign, traverseCourseActivity } from './functions/activity';
@@ -13,12 +14,12 @@ const PromptsOptions = {
     console.log(red('✖') + ' 操作取消');
     process.exit(0);
   },
-};
+};//是一个可选项 由用户决定当前操作
 
 (async function () {
   let params: UserCookieType & { phone?: string; };
   const configs: any = {};
-  // 本地与登录之间的抉择
+  // 本地与登录之间的抉择，调用 getLocalUsers方法查看是否有本地用户。如有可以选择用户登录
   {
     // 打印本地用户列表，并返回用户数量
     const { userItem } = await prompts({
@@ -33,13 +34,13 @@ const PromptsOptions = {
       const { phone } = await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions);
       const { password } = await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions);
       // 登录获取各参数
-      const result = await userLogin(phone, password);
+      const result = await userLogin(phone, password);//调用 userLogin函数获取用户参数，储存在result
       if (typeof result === 'string') process.exit(0);
-      else storeUser(phone, { phone, params: result }); // 储存到本地
-      params = { ...result, phone };
+      else storeUser(phone, { phone, params: result }); // 把result参数储存到本地，改名为params储存（注意这是一个立即调用函数，定义的变量是全局变量）
+      params = { ...result, phone };//改名为params储存
     } else {
-      // 使用本地储存的参数
-      const jsonObject = getJsonObject('configs/storage.json').users[userItem];
+      // 使用本地储存的参数（老用户）
+      const jsonObject = getJsonObject('configs/storage.json').users[userItem];//getJsonObject方法转化storage.json中的信息为一个Object
       params = { ...jsonObject.params };
       params.phone = jsonObject.phone;
       configs.monitor = { ...jsonObject.monitor };
